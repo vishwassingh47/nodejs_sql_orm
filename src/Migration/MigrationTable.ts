@@ -1,4 +1,4 @@
-import {SQLTypes} from '../ORMUtils';
+import {OrmTypes} from '../';
 
 import { MySqlClient, DBConnectionUtilI } from '../SqlClient';
 import { PC_ORM } from '../ORM';
@@ -22,7 +22,7 @@ export function init(client:MySqlClient):Promise<PC_ORM>
             [
                 {
                     columnName:F.lastTime,
-                    type:SQLTypes.BIGINT,
+                    type:OrmTypes.SQLTypes.BIGINT,
                     isNull:false,
                     maxSize:20,
                     isUnique:true,

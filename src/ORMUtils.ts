@@ -1,80 +1,4 @@
-
-export interface CreateColumn
-{
-    columnName: string,
-    type: SQLTypes,
-    isNull: boolean,
-    isPrimaryKey?: boolean | false,
-    isAutoIncrement?: boolean | undefined,
-    isUnique?: boolean | undefined,
-    default?: any | undefined,
-    maxSize?: number | undefined,
-    enumObj?: Object | undefined,
-    decimalPoints?: number | undefined,
-    check?: { op: '=' | '<=' | '>=' | '>' | '<', value: any }
-}
-
-export enum SQLTypes
-{
-    INT = "INT",
-    VARCHAR = "VARCHAR",
-    BIGINT = "BIGINT",
-    ENUM = "ENUM",
-    DOUBLE = "DOUBLE",
-    BOOLEAN = "BOOLEAN",
-    TEXT = "TEXT"
-};
-
-
-export interface PC_ORM_Config
-{
-    disableDefaultTimeStamp: boolean,
-    disableDefaultPk: boolean
-}
-
-export enum ORM_DEFAULT_COLUMNS
-{
-    _createdAt = "_createdAt",
-    _updatedAt = "_updatedAt",
-    _id = "_id"
-}
-
-export interface X
-{
-    columnName: string,
-    value: any
-}
-
-type addMinus="+"|"-";
-export type Y = [string, any];
-export type U = [string, any,addMinus?];
-export type Z = [string, 'DESC' | 'ASC'];
-export type WHERE1 = '(' | ')' | 'AND' | 'OR';
-export type OP = '=' | '<' | '>' | '>=' | '<=' | 'IN'| 'NOT IN' | '!=';
-export interface WHERE2
-{
-    colName: string,
-    value: any,
-    op?: OP
-};
-export type WHERE_LIST = Array<WHERE1 | WHERE2>;
-export type SELECT = '*' | string | string[];
-
-
-export interface QueryParser
-{
-    query: string,
-    params: any[]
-}
-
-export interface ExtendedSelect
-{
-    rows: any | any[],
-    totalRecordsCount: number,
-    totalPages: number,
-    hasMore: boolean,
-}
-
+import {PC_ORM_Config, C, ORM_DEFAULT_COLUMNS, SQLTypes, QueryParser, I, U, W, SELECT, O, CreateEntry, WhereEntry1, WhereEntry2 } from "./OrmTypes";
 
 export class ORMUtils
 {
@@ -96,7 +20,7 @@ export class ORMUtils
         }
     }
 
-    public create(tableName: string, columns: CreateColumn[], skipIfExist?: boolean): QueryParser
+    public create(tableName: string, columns:C, skipIfExist?: boolean): QueryParser
     {
         if (!this.config.disableDefaultPk)
         {
@@ -137,25 +61,15 @@ export class ORMUtils
         return { query, params: [] };
     }
 
-    public checkIfExist(tableName: string, fieldAndValueArray: Array<X>): QueryParser
+    public checkIfExist(tableName: string,whereList:W): QueryParser
     {
-        let s = ``;
-        const params = [];
-        for (let i of fieldAndValueArray)
-        {
-            if (s.length > 0)
-            {
-                s += ' AND '
-            }
-            s += `${i.columnName} = ?`
-            params.push(i.value)
-        }
-        const query = `SELECT count(*) AS c from ${tableName} WHERE ${s}`;
-
+        const params:any[] = [];
+        const whereQ = parseWhereCondition(whereList, params);
+        const query = `SELECT count(*) AS c from ${tableName} ${whereQ}`;
         return { query, params }
     }
 
-    public insert(tableName: string, fieldAndValueArray: Array<Y>): QueryParser
+    public insert(tableName: string, fieldAndValueArray:I): QueryParser
     {
         if (!this.config.disableDefaultTimeStamp)
         {
@@ -183,7 +97,7 @@ export class ORMUtils
         return { query, params };
     }
 
-    public update(tableName: string, fieldAndValueToUpdateArray: Array<U>, whereList: WHERE_LIST): QueryParser
+    public update(tableName: string, fieldAndValueToUpdateArray:U, whereList:W): QueryParser
     {
         if (!this.config.disableDefaultTimeStamp)
         {
@@ -215,7 +129,7 @@ export class ORMUtils
         return { params, query };
     }
 
-    public delete(tableName: string, whereList: WHERE_LIST): QueryParser
+    public delete(tableName: string, whereList:W): QueryParser
     {
         const params: any[] = [];
         const whereQ = parseWhereCondition(whereList, params);
@@ -223,7 +137,7 @@ export class ORMUtils
         return { params, query };
     };
 
-    public select(tableName: string, selectQuery: SELECT, whereList: WHERE_LIST, orderByList: Z[], pageNumber?: number, pageSize?: number): QueryParser
+    public select(tableName: string, selectQuery:SELECT, whereList: W, orderByList: O, pageNumber?: number, pageSize?: number): QueryParser
     {
         if (typeof selectQuery != "string")
         {
@@ -266,7 +180,7 @@ export class ORMUtils
 
 }
 
-function getColumnString(col: CreateColumn): string
+function getColumnString(col:CreateEntry): string
 {
     let s = ``;
     const t = col.type;
@@ -395,13 +309,13 @@ function getStringEnumCreateCommand(myEnum: Object)
 }
 
 
-function parseWhereCondition(whereList: WHERE_LIST, params: any[]): string
+function parseWhereCondition(whereList:W, params: any[]): string
 {
     if (whereList.length == 0)
         return '';
 
     let w = '';
-    let prevElt: string | WHERE2 | null = null;
+    let prevElt: WhereEntry1 | WhereEntry2 | null = null;
     for (let c of whereList)
     {
         if (typeof c == "string")
@@ -412,7 +326,7 @@ function parseWhereCondition(whereList: WHERE_LIST, params: any[]): string
             {
                 w += ` AND `;
             }
-            if (!(c as WHERE2).op)
+            if (!(c as WhereEntry2).op)
             {
                 c.op = '=';
             }
@@ -438,7 +352,7 @@ function parseWhereCondition(whereList: WHERE_LIST, params: any[]): string
 }
 
 
-function parseOrderBy(orderByList: Z[]): string
+function parseOrderBy(orderByList:O): string
 {
     if (orderByList.length == 0)
         return '';

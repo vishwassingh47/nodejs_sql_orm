@@ -1,4 +1,4 @@
-import { QueryParser } from "../ORMUtils";
+import { QueryParser } from "../OrmTypes";
 
 export interface PC_Migration
 {

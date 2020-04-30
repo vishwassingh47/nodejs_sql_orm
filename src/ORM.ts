@@ -1,5 +1,7 @@
 import { MySqlClient, DBConnectionUtilI } from "./SqlClient";
-import { ORMUtils, X, Y, CreateColumn, WHERE_LIST, SELECT, Z, ORM_DEFAULT_COLUMNS, ExtendedSelect, U } from "./ORMUtils";
+import { ORMUtils} from "./ORMUtils";
+import {C, ORM_DEFAULT_COLUMNS, SQLTypes, QueryParser, I, U, W, SELECT, O, CreateEntry, WhereEntry1, WhereEntry2, ExtendedSelect } from "./OrmTypes";
+
 import * as mysql from 'mysql';
 
 export class PC_ORM
@@ -15,7 +17,7 @@ export class PC_ORM
         this.ormUtils=new ORMUtils();
     }
 
-    public create(columns: CreateColumn[],skipIfExist?:boolean,dbConnection?: DBConnectionUtilI.SQLCustomConnection): Promise<void>
+    public create(columns:C,skipIfExist?:boolean,dbConnection?: DBConnectionUtilI.SQLCustomConnection): Promise<void>
     {
         return new Promise(async (resolve, reject) =>
         {
@@ -32,13 +34,13 @@ export class PC_ORM
         });
     }
 
-    public checkIfExist(fieldAndValueArray: Array<X>, dbConnection?: DBConnectionUtilI.SQLCustomConnection): Promise<boolean>
+    public checkIfExist(whereList:W, dbConnection?: DBConnectionUtilI.SQLCustomConnection): Promise<boolean>
     {
         return new Promise(async (resolve, reject) =>
         {
             try
             {
-                const queryParser= this.ormUtils.checkIfExist(this.tableName,fieldAndValueArray);
+                const queryParser= this.ormUtils.checkIfExist(this.tableName,whereList);
                 const rows = await this.client.runQuery(queryParser.query,queryParser.params, dbConnection);
                 resolve(rows[0].c > 0);
             }
@@ -49,7 +51,7 @@ export class PC_ORM
         });
     }
 
-    public insert(fieldAndValueArray: Array<Y>, dbConnection?: DBConnectionUtilI.SQLCustomConnection): Promise<DBConnectionUtilI.InsertResult>
+    public insert(fieldAndValueArray:I, dbConnection?: DBConnectionUtilI.SQLCustomConnection): Promise<DBConnectionUtilI.InsertResult>
     {
         return new Promise(async (resolve, reject) =>
         {
@@ -66,7 +68,7 @@ export class PC_ORM
         });
     }
 
-    public update(fieldAndValueToUpdateArray: Array<U>, whereList: WHERE_LIST, dbConnection?: DBConnectionUtilI.SQLCustomConnection): Promise<DBConnectionUtilI.UpdateResult>
+    public update(fieldAndValueToUpdateArray: U, whereList: W, dbConnection?: DBConnectionUtilI.SQLCustomConnection): Promise<DBConnectionUtilI.UpdateResult>
     {
         return new Promise(async (resolve, reject) =>
         {
@@ -83,7 +85,7 @@ export class PC_ORM
         });
     }
 
-    public mustUpdateOne(primaryKey:number,fieldAndValueToUpdateArray: Array<U>, whereList: WHERE_LIST, dbConnection?: DBConnectionUtilI.SQLCustomConnection): Promise<void>
+    public mustUpdateOne(primaryKey:number,fieldAndValueToUpdateArray: U, whereList: W, dbConnection?: DBConnectionUtilI.SQLCustomConnection): Promise<void>
     {
         return new Promise(async (resolve, reject) =>
         {
@@ -114,7 +116,7 @@ export class PC_ORM
         });
     }
 
-    public delete(whereList: WHERE_LIST, dbConnection?: DBConnectionUtilI.SQLCustomConnection): Promise<DBConnectionUtilI.UpdateResult>
+    public delete(whereList: W, dbConnection?: DBConnectionUtilI.SQLCustomConnection): Promise<DBConnectionUtilI.UpdateResult>
     {
         return new Promise(async (resolve, reject) =>
         {
@@ -131,7 +133,7 @@ export class PC_ORM
         });
     }
 
-    public select(selectQuery:SELECT, whereList: WHERE_LIST,orderByList:Z[],dbConnection?: DBConnectionUtilI.SQLCustomConnection|undefined,pageNumber?:number|undefined,pageSize?:number|undefined): Promise<any[] | any>
+    public select(selectQuery:SELECT, whereList: W,orderByList:O,dbConnection?: DBConnectionUtilI.SQLCustomConnection|undefined,pageNumber?:number|undefined,pageSize?:number|undefined): Promise<any[] | any>
     {
         return new Promise(async (resolve, reject) =>
         {
@@ -147,7 +149,7 @@ export class PC_ORM
             }
         });
     }
-    public extendedSelect(selectQuery:SELECT, whereList: WHERE_LIST,orderByList:Z[],pageNumber:number,pageSize:number,isCountRequired?:boolean|undefined,dbConnection?: DBConnectionUtilI.SQLCustomConnection|undefined): Promise<ExtendedSelect>
+    public extendedSelect(selectQuery:SELECT, whereList: W,orderByList:O,pageNumber:number,pageSize:number,isCountRequired?:boolean|undefined,dbConnection?: DBConnectionUtilI.SQLCustomConnection|undefined): Promise<ExtendedSelect>
     {
         return new Promise(async (resolve, reject) =>
         {
@@ -191,7 +193,7 @@ export class PC_ORM
 
     
 
-    public mustSelectOne(primaryKey:number,selectQuery:SELECT, whereList: WHERE_LIST,orderByList:Z[], dbConnection?: DBConnectionUtilI.SQLCustomConnection): Promise<any[]>
+    public mustSelectOne(primaryKey:number,selectQuery:SELECT, whereList: W,orderByList:O, dbConnection?: DBConnectionUtilI.SQLCustomConnection): Promise<any[]>
     {
         return new Promise(async (resolve, reject) =>
         {
