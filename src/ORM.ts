@@ -1,6 +1,6 @@
 import { MySqlClient, DBConnectionUtilI } from "./SqlClient";
 import { ORMUtils} from "./ORMUtils";
-import {C, ORM_DEFAULT_COLUMNS, SQLTypes, QueryParser, I, U, W, SELECT, O, CreateEntry, WhereEntry1, WhereEntry2, ExtendedSelect } from "./OrmTypes";
+import {C, ORM_DEFAULT_COLUMNS, SQLTypes, QueryParser, I, U, W, SELECT, O, CreateEntry, WhereEntry1, WhereEntry2, ExtendedSelect, CI } from "./OrmTypes";
 
 import * as mysql from 'mysql';
 
@@ -17,13 +17,13 @@ export class PC_ORM
         this.ormUtils=new ORMUtils();
     }
 
-    public create(columns:C,skipIfExist?:boolean,dbConnection?: DBConnectionUtilI.SQLCustomConnection): Promise<void>
+    public create(columns:C,indexesList:CI,skipIfExist?:boolean,dbConnection?: DBConnectionUtilI.SQLCustomConnection): Promise<void>
     {
         return new Promise(async (resolve, reject) =>
         {
             try
             {
-                const queryParser= this.ormUtils.create(this.tableName,columns,skipIfExist);
+                const queryParser= this.ormUtils.create(this.tableName,columns,indexesList,skipIfExist);
                 const rows = await this.client.runQuery(queryParser.query,queryParser.params, dbConnection);
                 resolve();
             }

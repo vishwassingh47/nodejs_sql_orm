@@ -27,7 +27,7 @@ export function init(client:MySqlClient):Promise<PC_ORM>
                     maxSize:20,
                     isUnique:true,
                 }
-            ],true);
+            ],[],true);
 
             resolve(orm);
         }

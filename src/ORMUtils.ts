@@ -1,4 +1,4 @@
-import {PC_ORM_Config, C, ORM_DEFAULT_COLUMNS, SQLTypes, QueryParser, I, U, W, SELECT, O, CreateEntry, WhereEntry1, WhereEntry2 } from "./OrmTypes";
+import {PC_ORM_Config, C, ORM_DEFAULT_COLUMNS, SQLTypes, QueryParser, I, U, W, SELECT, O, CreateEntry, WhereEntry1, WhereEntry2, CI } from "./OrmTypes";
 
 export class ORMUtils
 {
@@ -20,7 +20,7 @@ export class ORMUtils
         }
     }
 
-    public create(tableName: string, columns:C, skipIfExist?: boolean): QueryParser
+    public create(tableName: string, columns:C,indexesList:CI,skipIfExist?: boolean): QueryParser
     {
         if (!this.config.disableDefaultPk)
         {
@@ -34,6 +34,7 @@ export class ORMUtils
         }
 
         let pkStr: string = '';
+        let indexStr:string='';
 
         let colStr = '';
         for (let col of columns)
@@ -55,8 +56,13 @@ export class ORMUtils
             }
         }
 
+        for(let i of indexesList)
+        {
+            indexStr+=`,${i.indexType} ${i.indexName} (${i.columnsList.toString()})`;
+        }
 
-        const query = skipIfExist ? `CREATE TABLE IF NOT EXISTS ${tableName} ( ${colStr} ${pkStr} )` : `CREATE TABLE ${tableName} ( ${colStr} ${pkStr} )`;
+
+        const query = skipIfExist ? `CREATE TABLE IF NOT EXISTS ${tableName} ( ${colStr} ${pkStr} ${indexStr} )` : `CREATE TABLE ${tableName} ( ${colStr} ${pkStr} ${indexStr} )`;
 
         return { query, params: [] };
     }

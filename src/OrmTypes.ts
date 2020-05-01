@@ -16,6 +16,15 @@ export interface CreateEntry
 export type C = CreateEntry[];
 
 
+export interface IndexEntry
+{
+    indexType:"INDEX"|"UNIQUE",
+    indexName:string,
+    columnsList:string[]
+}
+
+export type CI=IndexEntry[];
+
 export enum SQLTypes
 {
     INT = "INT",
