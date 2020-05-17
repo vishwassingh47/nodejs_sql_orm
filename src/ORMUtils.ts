@@ -38,7 +38,9 @@ export class ORMUtils
 
         let colStr = '';
         for (let col of columns)
+            
         {
+            //#update use array and then use tostring  
             if (colStr.length > 0)
             {
                 colStr += ',';
